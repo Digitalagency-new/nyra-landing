@@ -173,7 +173,8 @@ export default function LandingPage() {
   
     // Avatar Transforms
     const avatarScale = useTransform(scrollYProgress, [0, 0.3, 0.6, 0.9, 1], [1, 0.9, 1.05, 0.95, 1.2]);
-    const avatarOpacity = useTransform(scrollYProgress, [0, 0.98, 1], [1, 1, 0]);
+    const avatarOpacity = useTransform(scrollYProgress, [0, 0.08, 0.98, 1], [0, 1, 1, 0]);
+    const particleOpacity = useTransform(scrollYProgress, [0, 0.1], [0, 1]);
   
     // Scroll Progress Value
     const scrollIndicatorHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
@@ -194,7 +195,7 @@ export default function LandingPage() {
     return (
       <div ref={containerRef} className="relative min-h-[1000vh] bg-[#0B0B12] selection:bg-nyra-purple/30">
         <CustomCursor />
-        <ParticleBackground />
+        <ParticleBackground opacity={particleOpacity} />
         
         {/* Scroll Indicator */}
         <motion.div 
@@ -217,7 +218,7 @@ export default function LandingPage() {
           className="fixed inset-0 flex items-center justify-center pointer-events-none z-20"
           style={{ 
             scale: avatarScale, 
-            opacity: useTransform(scrollYProgress, [0, 0.98, 1], [1, 1, 0]) 
+            opacity: avatarOpacity 
           }}
         >
           <AvatarCore emotion={emotion} />
@@ -477,11 +478,11 @@ export default function LandingPage() {
           }}
           className="fixed inset-0 flex flex-col items-center justify-center z-40 px-6"
         >
-          <div className="text-center flex flex-col items-center gap-12 md:gap-20 max-w-5xl">
-            <div className="flex flex-col gap-6 md:gap-8">
-              <h2 className="text-3xl md:text-6xl font-light text-white/30 italic tracking-tight">Not artificial intelligence.</h2>
-              <h2 className="text-4xl md:text-[7rem] lg:text-[8rem] font-medium text-white tracking-tighter leading-[1.1]">Artificial companionship.</h2>
-            </div>
+            <div className="text-center flex flex-col items-center gap-10 md:gap-16 max-w-5xl">
+              <div className="flex flex-col gap-4 md:gap-6">
+                <p className="text-2xl md:text-5xl font-light text-white/30 italic tracking-tight">Not artificial intelligence.</p>
+                <h2 className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-medium text-white tracking-tighter leading-[1.1] text-balance">Artificial companionship.</h2>
+              </div>
             
             <div className="flex flex-col items-center gap-10">
               <button className="group relative px-12 md:px-20 py-6 md:py-10 rounded-full transition-all hover:scale-105 active:scale-95">
