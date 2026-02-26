@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { VisualEditsMessenger } from "orchids-visual-edits";
+import Script from "next/script";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -28,6 +29,12 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${spaceGrotesk.variable} antialiased bg-[#0f0f14] text-[#f8f8f8] font-sans`}
       >
+        <Script
+          id="orchids-browser-logs"
+          src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/scripts/orchids-browser-logs.js"
+          strategy="afterInteractive"
+          data-orchids-project-id="343132bd-1b46-4a4e-91ce-8b13face5083"
+        />
         {children}
         <VisualEditsMessenger />
       </body>
