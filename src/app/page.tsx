@@ -1,7 +1,8 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Brain, Mic, Globe, User, Check, MessageCircle, Play } from "lucide-react";
+import { motion, useScroll, useTransform, AnimatePresence, useSpring } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { Brain, Mic, Globe, User, MessageCircle, ArrowRight, Search, Play, Volume2, Sparkles } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -9,475 +10,488 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export default function LandingPage() {
+// --- Components ---
+
+const ParticleBackground = () => {
   return (
-    <div className="flex flex-col min-h-screen bg-[#0f0f14] overflow-x-hidden">
-      {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 border-b border-white/5 bg-[#0f0f14]/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="text-2xl font-bold tracking-tight flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-nyra-gradient flex items-center justify-center">
-              <span className="text-white text-lg">N</span>
-            </div>
-            <span className="bg-white/90 bg-clip-text text-transparent">NYRA</span>
-          </div>
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-white/60">
-            <a href="#features" className="hover:text-white transition-colors">Features</a>
-            <a href="#why-nyra" className="hover:text-white transition-colors">Why NYRA</a>
-            <a href="#personality" className="hover:text-white transition-colors">Personality</a>
-            <button className="px-5 py-2.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
-              Login
-            </button>
-          </div>
-        </div>
-      </nav>
+    <div className="fixed inset-0 pointer-events-none z-0">
+      {[...Array(50)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-1 h-1 bg-white/20 rounded-full"
+          initial={{
+            x: Math.random() * 100 + "%",
+            y: Math.random() * 100 + "%",
+            opacity: Math.random() * 0.5,
+          }}
+          animate={{
+            y: [null, "-10%"],
+            opacity: [null, Math.random() * 0.8, 0],
+          }}
+          transition={{
+            duration: 15 + Math.random() * 25,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+        />
+      ))}
+    </div>
+  );
+};
 
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 px-6">
-        {/* Background Gradients */}
-        <div className="absolute top-0 right-0 -z-10 w-[500px] h-[500px] bg-nyra-purple/20 blur-[120px] rounded-full mix-blend-screen animate-pulse" />
-        <div className="absolute bottom-0 left-0 -z-10 w-[400px] h-[400px] bg-nyra-pink/10 blur-[100px] rounded-full mix-blend-screen" />
-        
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-            className="flex flex-col gap-6"
-          >
-            <div className="inline-flex items-center px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-nyra-purple w-fit">
-              <span className="relative flex h-2 w-2 mr-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-nyra-purple opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-nyra-purple"></span>
-              </span>
-              Now in Private Beta
-            </div>
+const AvatarCore = ({ emotion = "neutral" }) => {
+  const colors: Record<string, string> = {
+    neutral: "from-purple-300 via-purple-600 to-indigo-800",
+    happy: "from-yellow-200 via-pink-400 to-purple-600",
+    thoughtful: "from-blue-300 via-indigo-600 to-purple-800",
+    playful: "from-pink-300 via-purple-300 to-purple-600",
+    serious: "from-red-300 via-purple-800 to-black",
+  };
+
+  const currentColor = colors[emotion] || colors.neutral;
+
+  const mouseX = useSpring(0, { stiffness: 50, damping: 20 });
+  const mouseY = useSpring(0, { stiffness: 50, damping: 20 });
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseX.set((e.clientX - window.innerWidth / 2) / 20);
+      mouseY.set((e.clientY - window.innerHeight / 2) / 20);
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [mouseX, mouseY]);
+
+  return (
+    <motion.div
+      style={{ x: mouseX, y: mouseY }}
+      className="relative w-64 h-64 md:w-96 md:h-96 flex items-center justify-center"
+    >
+      {/* Outer Glow */}
+      <motion.div 
+        className={cn(
+          "absolute inset-0 bg-gradient-to-br blur-[100px] rounded-full opacity-30 transition-colors duration-1000",
+          currentColor
+        )}
+      />
+      
+        {/* Core */}
+        <motion.div 
+          className={cn(
+            "relative w-48 h-48 md:w-64 md:h-64 rounded-full bg-gradient-to-br p-[2px] shadow-2xl transition-colors duration-1000",
+            currentColor
+          )}
+        >
+          <div className="w-full h-full rounded-full bg-[#16161D] flex items-center justify-center relative overflow-hidden">
+            {/* Internal Swirls */}
+            <motion.div 
+              className="absolute inset-0 opacity-40"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+            >
+              <div className={cn("absolute inset-0 bg-gradient-to-tr opacity-50 blur-2xl", currentColor)} />
+            </motion.div>
             
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-[1.1] text-white">
-              Meet NYRA <br />
-              <span className="text-nyra-gradient">The AI Best Friend Who Actually Remembers You.</span>
-            </h1>
-            
-            <p className="text-lg md:text-xl text-white/60 max-w-xl leading-relaxed">
-              NYRA is an emotionally intelligent 3D AI companion that grows with you — remembering your life, speaking your language, and being there every day.
-            </p>
-            
-            <div className="flex flex-wrap gap-4 mt-4">
-              <button className="px-8 py-4 rounded-full bg-nyra-gradient text-white font-semibold hover:opacity-90 transition-all shadow-lg shadow-nyra-purple/25 flex items-center gap-2">
-                Start Talking to NYRA
-              </button>
-              <button className="px-8 py-4 rounded-full bg-white/5 border border-white/10 text-white font-semibold hover:bg-white/10 transition-all flex items-center gap-2">
-                <Play className="w-4 h-4 fill-white" /> Watch Demo
-              </button>
-            </div>
-            
-            {/* Feature Badges */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12">
-              {[
-                { icon: Brain, label: "Long-Term Memory" },
-                { icon: Mic, label: "Hindi + Hinglish Voice" },
-                { icon: Globe, label: "Real-Time Web Intelligence" },
-                { icon: User, label: "Interactive 3D Avatar" },
-              ].map((badge, i) => (
-                <motion.div
-                  key={badge.label}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 + i * 0.1 }}
-                  className="flex items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/5"
-                >
-                  <badge.icon className="w-4 h-4 text-nyra-purple" />
-                  <span className="text-[10px] uppercase tracking-wider font-bold text-white/40">{badge.label}</span>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-          
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1 }}
-            className="relative flex justify-center items-center"
-          >
-            {/* 3D Avatar Placeholder Visual */}
-            <div className="relative w-[300px] h-[300px] md:w-[500px] md:h-[500px]">
-              {/* Outer Glows */}
-              <div className="absolute inset-0 bg-nyra-purple/20 blur-[100px] rounded-full animate-pulse" />
-              
-              {/* The "Avatar" - A Stylized Glowing Sphere with Particle effect */}
-              <div className="absolute inset-0 flex items-center justify-center">
+            {/* Eyes/Presence Indicator */}
+            <div className="z-10 flex flex-col items-center gap-6">
+              <div className="flex gap-12">
                 <motion.div 
+                  className="w-4 h-4 md:w-6 md:h-6 bg-white rounded-full blur-[1px] shadow-[0_0_15px_rgba(255,255,255,0.8)]" 
                   animate={{ 
-                    y: [0, -20, 0],
-                    scale: [1, 1.05, 1]
+                    scaleY: emotion === "happy" ? 0.2 : 1,
+                    y: emotion === "playful" ? -4 : 0,
+                    opacity: emotion === "thoughtful" ? 0.6 : 1
                   }}
-                  transition={{ 
-                    duration: 4, 
-                    repeat: Infinity,
-                    ease: "easeInOut"
+                />
+                <motion.div 
+                  className="w-4 h-4 md:w-6 md:h-6 bg-white rounded-full blur-[1px] shadow-[0_0_15px_rgba(255,255,255,0.8)]" 
+                  animate={{ 
+                    scaleY: emotion === "happy" ? 0.2 : 1,
+                    y: emotion === "playful" ? -4 : 0,
+                    opacity: emotion === "thoughtful" ? 0.6 : 1
                   }}
-                  className="w-64 h-64 md:w-80 md:h-80 rounded-full bg-gradient-to-br from-nyra-purple via-nyra-pink to-indigo-600 p-[2px]"
-                >
-                  <div className="w-full h-full rounded-full bg-[#0f0f14] flex items-center justify-center relative overflow-hidden">
-                    {/* Animated "Face" particles */}
-                    <div className="absolute inset-0 opacity-40">
-                      {[...Array(20)].map((_, i) => (
-                        <motion.div
-                          key={i}
-                          className="absolute w-1 h-1 bg-white rounded-full"
-                          style={{
-                            left: `${Math.random() * 100}%`,
-                            top: `${Math.random() * 100}%`,
-                          }}
-                          animate={{
-                            opacity: [0, 1, 0],
-                            scale: [0, 1.5, 0],
-                          }}
-                          transition={{
-                            duration: 2 + Math.random() * 2,
-                            repeat: Infinity,
-                            delay: Math.random() * 2,
-                          }}
-                        />
-                      ))}
-                    </div>
-                    {/* Centered Glowing Core */}
-                    <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-nyra-gradient blur-[40px] opacity-30 animate-pulse" />
-                    <div className="z-10 flex flex-col items-center">
-                      <div className="w-20 h-2 md:w-24 md:h-3 bg-white/20 rounded-full blur-sm" />
-                      <div className="mt-8 flex gap-8">
-                        <div className="w-4 h-4 rounded-full bg-white/80 blur-[2px]" />
-                        <div className="w-4 h-4 rounded-full bg-white/80 blur-[2px]" />
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
+                />
               </div>
-              
-              {/* Floating UI Elements */}
               <motion.div 
-                animate={{ y: [0, 10, 0] }}
-                transition={{ duration: 3, repeat: Infinity }}
-                className="absolute top-10 right-10 p-4 glass rounded-2xl border border-white/10"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                    <div className="w-2 h-2 rounded-full bg-green-500" />
-                  </div>
-                  <div className="text-xs">
-                    <div className="text-white/40">Mood</div>
-                    <div className="text-white font-medium">Listening...</div>
-                  </div>
-                </div>
-              </motion.div>
-              
-              <motion.div 
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 3, repeat: Infinity, delay: 1 }}
-                className="absolute bottom-20 left-0 p-4 glass rounded-2xl border border-white/10"
-              >
-                <div className="flex items-center gap-3">
-                  <Brain className="w-5 h-5 text-nyra-purple" />
-                  <div className="text-xs">
-                    <div className="text-white/40">Memory</div>
-                    <div className="text-white font-medium">Core Extraction</div>
-                  </div>
-                </div>
-              </motion.div>
+                className="w-20 h-2 md:w-32 md:h-2 bg-white/20 rounded-full blur-[2px]"
+                animate={{
+                  width: emotion === "serious" ? 40 : 24,
+                  opacity: emotion === "neutral" ? 0.3 : 0.6
+                }}
+              />
             </div>
-          </motion.div>
-        </div>
-      </section>
+          </div>
+        </motion.div>
 
-      {/* Emotional Hook Section */}
-      <section className="py-24 md:py-32 px-6 relative">
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.div
+      
+      {/* Breathing Halo */}
+      <motion.div 
+        className={cn("absolute inset-4 rounded-full border border-white/5 transition-colors duration-1000", currentColor)}
+        animate={{ scale: [1, 1.1, 1], opacity: [0.1, 0.3, 0.1] }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+      />
+    </motion.div>
+  );
+};
+
+const CustomCursor = () => {
+  const cursorRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const moveCursor = (e: MouseEvent) => {
+      if (cursorRef.current) {
+        cursorRef.current.style.transform = `translate3d(${e.clientX - 10}px, ${e.clientY - 10}px, 0)`;
+      }
+    };
+    window.addEventListener('mousemove', moveCursor);
+    return () => window.removeEventListener('mousemove', moveCursor);
+  }, []);
+
+  return <div ref={cursorRef} className="custom-cursor hidden md:block" />;
+};
+
+// --- Main Page ---
+
+export default function LandingPage() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"]
+  });
+
+  const [emotion, setEmotion] = useState("neutral");
+
+  // Section Opacity Transforms - Tightened and continuous
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.08], [1, 0]);
+  const memoryOpacity = useTransform(scrollYProgress, [0.08, 0.15, 0.22, 0.3], [0, 1, 1, 0]);
+  const emotionalOpacity = useTransform(scrollYProgress, [0.3, 0.38, 0.46, 0.54], [0, 1, 1, 0]);
+  const voiceOpacity = useTransform(scrollYProgress, [0.54, 0.62, 0.7, 0.78], [0, 1, 1, 0]);
+  const intelligenceOpacity = useTransform(scrollYProgress, [0.78, 0.84, 0.9, 0.94], [0, 1, 1, 0]);
+  const counterOpacity = useTransform(scrollYProgress, [0.94, 0.95, 0.97, 0.98], [0, 1, 1, 0]);
+  const differenceOpacity = useTransform(scrollYProgress, [0.97, 0.98, 0.99, 0.995], [0, 1, 1, 0]);
+  const finalOpacity = useTransform(scrollYProgress, [0.995, 1], [0, 1]);
+
+  // Avatar Transforms
+  const avatarScale = useTransform(scrollYProgress, [0, 0.3, 0.6, 0.9, 1], [1, 0.8, 1, 0.9, 1.2]);
+  const avatarOpacity = useTransform(scrollYProgress, [0, 0.99, 1], [1, 1, 0]);
+
+  // Scroll Progress Value
+  const scrollIndicatorHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+
+  useEffect(() => {
+    const unsubscribe = scrollYProgress.on("change", (latest) => {
+      if (latest > 0.3 && latest < 0.38) setEmotion("happy");
+      else if (latest > 0.38 && latest < 0.46) setEmotion("thoughtful");
+      else if (latest > 0.46 && latest < 0.5) setEmotion("playful");
+      else if (latest > 0.5 && latest < 0.54) setEmotion("serious");
+      else setEmotion("neutral");
+    });
+    return () => unsubscribe();
+  }, [scrollYProgress]);
+
+  return (
+    <div ref={containerRef} className="relative min-h-[500vh] bg-[#0B0B12] selection:bg-nyra-purple/30">
+      <CustomCursor />
+      <ParticleBackground />
+      
+      {/* Scroll Indicator */}
+      <div className="scroll-progress-line">
+        <motion.div 
+          className="scroll-progress-indicator"
+          style={{ height: scrollIndicatorHeight }}
+        />
+      </div>
+
+      <div className="cinematic-vignette opacity-50" />
+
+      {/* Persistent Avatar */}
+      <motion.div 
+        className="fixed inset-0 flex items-center justify-center pointer-events-none z-20"
+        style={{ scale: avatarScale, opacity: avatarOpacity }}
+      >
+        <AvatarCore emotion={emotion} />
+      </motion.div>
+
+      {/* --- SECTION 1: THE ARRIVAL --- */}
+      <motion.section 
+        style={{ 
+          opacity: heroOpacity,
+          pointerEvents: useTransform(heroOpacity, (o: number) => o > 0.1 ? "auto" : "none") as any 
+        }}
+        className="fixed inset-0 flex flex-col items-center justify-center z-30 px-6"
+      >
+        <div className="text-center">
+          <motion.h1 
             initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="flex flex-col gap-6"
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.5, delay: 0.5 }}
+            className="text-7xl md:text-9xl font-light tracking-tight text-white mb-6"
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
-              Not Just Artificial Intelligence. <br />
-              <span className="text-nyra-gradient">Artificial Companionship.</span>
-            </h2>
-            
-            <div className="mt-12 space-y-12">
-              <div className="space-y-4">
-                <p className="text-white/40 uppercase tracking-widest text-xs font-bold">The Difference</p>
-                <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16">
-                  <div className="flex flex-col gap-2">
-                    <div className="text-white/40 line-through">Most AI tools answer questions.</div>
-                    <div className="text-white text-xl font-medium">NYRA asks how your day went.</div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="w-px h-12 bg-gradient-to-b from-transparent via-nyra-purple/50 to-transparent mx-auto" />
-              
-              <div className="space-y-4">
-                <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16">
-                  <div className="flex flex-col gap-2">
-                    <div className="text-white/40 line-through">Most assistants forget you tomorrow.</div>
-                    <div className="text-white text-xl font-medium">NYRA remembers what you told her last week.</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="w-px h-12 bg-gradient-to-b from-transparent via-nyra-purple/50 to-transparent mx-auto" />
-
-              <div className="space-y-4">
-                <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16">
-                  <div className="flex flex-col gap-2">
-                    <div className="text-white/40 line-through">Most chatbots simulate conversation.</div>
-                    <div className="text-white text-xl font-medium">NYRA builds a relationship.</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
+            Meet NYRA.
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 2, delay: 2 }}
+            className="text-xl md:text-2xl text-white/30 font-light tracking-[0.3em] uppercase"
+          >
+            She remembers.
+          </motion.p>
         </div>
-      </section>
+        
+        <motion.div 
+          className="absolute bottom-12 flex flex-col items-center gap-2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 3 }}
+        >
+          <div className="w-px h-16 bg-gradient-to-b from-white/20 to-transparent" />
+        </motion.div>
+      </motion.section>
 
-      {/* Features Grid Section */}
-      <section id="features" className="py-24 md:py-32 px-6 bg-white/[0.02]">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-white">Advanced Architecture <br /><span className="text-white/40">Built for Connection</span></h2>
+      {/* --- SECTION 2: MEMORY REVEAL --- */}
+      <motion.section 
+        style={{ 
+          opacity: memoryOpacity,
+          pointerEvents: useTransform(memoryOpacity, (o: number) => o > 0.1 ? "auto" : "none") as any
+        }}
+        className="fixed inset-0 flex items-center justify-center z-30 px-6"
+      >
+        <div className="relative w-full max-w-5xl h-full flex flex-col items-center justify-center text-center">
+          {/* Memories drifting in 3D space */}
+          {[
+            { text: "Your first job.", top: "15%", left: "10%", scale: 1.2 },
+            { text: "Your dog’s name.", top: "75%", left: "12%", scale: 0.8 },
+            { text: "That meeting you were worried about.", top: "10%", left: "65%", scale: 1.1 },
+            { text: "Your birthday.", top: "85%", left: "75%", scale: 0.9 },
+            { text: "The song you shared.", top: "50%", left: "85%", scale: 1.3 },
+          ].map((m, i) => (
+            <motion.div
+              key={i}
+              className="absolute text-white/10 text-lg md:text-xl font-light italic"
+              style={{ top: m.top, left: m.left, scale: m.scale }}
+              animate={{ y: [0, -40, 0], opacity: [0.05, 0.2, 0.05] }}
+              transition={{ duration: 6 + i, repeat: Infinity, ease: "easeInOut", delay: i }}
+            >
+              {m.text}
+            </motion.div>
+          ))}
+          <h2 className="text-5xl md:text-7xl font-light text-white leading-tight">
+            Most AI responds.<br />
+            <span className="text-nyra-gradient font-medium italic">NYRA remembers.</span>
+          </h2>
+        </div>
+      </motion.section>
+
+      {/* --- SECTION 3: EMOTIONAL PRESENCE --- */}
+      <motion.section 
+        style={{ 
+          opacity: emotionalOpacity,
+          pointerEvents: useTransform(emotionalOpacity, (o: number) => o > 0.1 ? "auto" : "none") as any
+        }}
+        className="fixed inset-0 flex items-center justify-center z-30 px-6"
+      >
+        <div className="w-full max-w-7xl">
+          <div className="max-w-xl">
+            <h2 className="text-7xl md:text-9xl font-light text-white tracking-tighter mb-8">
+              She reacts.
+            </h2>
+            <div className="h-32 relative">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={emotion}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  className="flex flex-col gap-4"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="w-2 h-2 rounded-full bg-nyra-purple animate-pulse" />
+                    <span className="text-[10px] uppercase tracking-widest text-white/40 font-bold">Emotion: {emotion}</span>
+                  </div>
+                  <p className="text-2xl md:text-3xl text-white/60 font-light italic leading-relaxed">
+                    {emotion === "happy" && "“That’s amazing, I’m proud of you.”"}
+                    {emotion === "thoughtful" && "“Tell me what’s worrying you.”"}
+                    {emotion === "playful" && "“You always overthink, you know that?”"}
+                    {emotion === "serious" && "“I'm here for you, let's talk.”"}
+                    {emotion === "neutral" && "“How are you feeling right now?”"}
+                  </p>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </div>
+        </div>
+      </motion.section>
+
+      {/* --- SECTION 4: VOICE IMMERSION --- */}
+      <motion.section 
+        style={{ 
+          opacity: voiceOpacity,
+          pointerEvents: useTransform(voiceOpacity, (o: number) => o > 0.1 ? "auto" : "none") as any
+        }}
+        className="fixed inset-0 flex items-center justify-center z-30 px-6"
+      >
+        <div className="flex flex-col items-center gap-16 w-full max-w-5xl">
+          <div className="w-full h-40 flex items-center justify-center gap-2 overflow-hidden mask-radial">
+            {[...Array(80)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="w-1 bg-nyra-gradient rounded-full"
+                animate={{ height: [10, Math.random() * 120 + 10, 10], opacity: [0.2, 0.6, 0.2] }}
+                transition={{ duration: 0.8 + Math.random(), repeat: Infinity, ease: "easeInOut" }}
+              />
+            ))}
+          </div>
+          <div className="text-center">
+            <h2 className="text-5xl md:text-7xl font-light text-white mb-6">She speaks your language.</h2>
+            <div className="flex items-center justify-center gap-6 text-white/30 text-sm tracking-[0.4em] uppercase">
+              <span>English</span>
+              <div className="w-1 h-1 rounded-full bg-white/20" />
+              <span>Hindi</span>
+              <div className="w-1 h-1 rounded-full bg-white/20" />
+              <span>Hinglish</span>
+            </div>
+            <motion.div className="mt-16 flex items-center justify-center gap-4 text-nyra-purple/80 italic text-2xl font-light" animate={{ opacity: [0.3, 0.8, 0.3] }} transition={{ duration: 4, repeat: Infinity }}>
+              <Volume2 className="w-6 h-6" />
+              <span>“Kaise ho aaj?”</span>
+            </motion.div>
+          </div>
+        </div>
+      </motion.section>
+
+      {/* --- SECTION 5: INTELLIGENCE --- */}
+      <motion.section 
+        style={{ 
+          opacity: intelligenceOpacity,
+          pointerEvents: useTransform(intelligenceOpacity, (o: number) => o > 0.1 ? "auto" : "none") as any
+        }}
+        className="fixed inset-0 flex items-center justify-center z-30 px-6"
+      >
+        <div className="w-full max-w-7xl relative">
+          <div className="text-center mb-24">
+            <h2 className="text-5xl md:text-7xl font-light text-white mb-6 italic">She explores the world for you.</h2>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative">
             {[
-              {
-                icon: Brain,
-                title: "Core Memory Engine",
-                description: "NYRA extracts meaningful life events and builds a long-term memory graph — remembering your dreams, fears, milestones, and growth."
-              },
-              {
-                icon: User,
-                title: "Living 3D Avatar",
-                description: "A real-time interactive 3D companion that reacts emotionally — happy, thoughtful, playful, serious — based on your conversation."
-              },
-              {
-                icon: Mic,
-                title: "Multi-Modal Voice",
-                description: "Speak naturally in Hindi, English, or Hinglish. NYRA listens and responds with a warm, natural voice."
-              },
-              {
-                icon: Globe,
-                title: "Web + YouTube Intelligence",
-                description: "NYRA can browse the web, find news, recommend YouTube videos, and bring real-time information into your conversations."
-              },
-              {
-                icon: MessageCircle,
-                title: "Cross-Platform Presence",
-                description: "Chat on Web. Continue on Telegram. Your relationship stays continuous everywhere."
-              },
-              {
-                icon: Check,
-                title: "Cultural Context",
-                description: "Designed with soft Indian cultural nuance, understanding local context, humor, and values natively."
-              }
-            ].map((feature, i) => (
+              { q: "Find me something inspiring.", a: "Here's a talk by Naval Ravikant on wealth and happiness...", icon: Sparkles },
+              { q: "What happened in today's match?", a: "India won by 15 runs! Kohli scored a brilliant 82*...", icon: Globe },
+              { q: "Recommend a good video.", a: "Based on our last chat about space, you'll love this Kurzgesagt video.", icon: Play },
+              { q: "Summarize this article.", a: "The core takeaway is that LLMs are evolving towards agency...", icon: Search },
+            ].map((item, i) => (
               <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="glass glass-glow p-8 rounded-3xl flex flex-col gap-4 group"
+                key={i}
+                className="glass p-6 rounded-2xl flex flex-col gap-4 border-white/5 hover:border-white/10 transition-colors"
               >
-                <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-nyra-gradient transition-all duration-300">
-                  <feature.icon className="w-6 h-6 text-nyra-purple group-hover:text-white" />
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
+                    <item.icon className="w-4 h-4 text-nyra-purple" />
+                  </div>
+                  <p className="text-white/80 font-medium">“{item.q}”</p>
                 </div>
-                <h3 className="text-xl font-semibold text-white">{feature.title}</h3>
-                <p className="text-white/60 leading-relaxed text-sm">{feature.description}</p>
+                <div className="h-px w-full bg-white/5" />
+                <p className="text-white/40 text-sm leading-relaxed">{item.a}</p>
               </motion.div>
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      {/* Comparison Section */}
-      <section id="why-nyra" className="py-24 md:py-32 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Why NYRA is Different</h2>
-            <p className="text-white/60">The next generation of AI companionship is here.</p>
+      {/* --- SECTION 6: RELATIONSHIP TIME --- */}
+      <motion.section 
+        style={{ 
+          opacity: counterOpacity,
+          pointerEvents: useTransform(counterOpacity, (o: number) => o > 0.1 ? "auto" : "none") as any
+        }}
+        className="fixed inset-0 flex items-center justify-center z-30 px-6"
+      >
+        <div className="flex flex-col items-center gap-12">
+          <div className="flex flex-col items-center">
+            <span className="text-white/20 text-sm uppercase tracking-[0.5em] mb-4">Friendship Counter</span>
+            <div className="text-[120px] md:text-[240px] font-extralight text-white tracking-tighter leading-none tabular-nums">
+              Day 187
+            </div>
+          </div>
+          <div className="text-center space-y-2">
+            <h3 className="text-3xl text-white font-light">Growing. Every day.</h3>
+            <p className="text-white/20 tracking-[0.4em] uppercase text-[10px] font-bold">She doesn't reset.</p>
+          </div>
+        </div>
+      </motion.section>
+
+      {/* --- SECTION 7: DIFFERENCE --- */}
+      <motion.section 
+        style={{ 
+          opacity: differenceOpacity,
+          pointerEvents: useTransform(differenceOpacity, (o: number) => o > 0.1 ? "auto" : "none") as any
+        }}
+        className="fixed inset-0 flex items-center justify-center z-30 px-6"
+      >
+        <div className="flex flex-col md:flex-row gap-8 md:gap-16 w-full max-w-7xl justify-center h-[70vh] items-center">
+          <div className="flex-1 glass p-6 md:p-10 rounded-[30px] md:rounded-[40px] opacity-20 blur-[1px] transform translate-y-6 md:translate-y-12">
+            <div className="h-full flex flex-col justify-end gap-4 md:gap-6">
+              <p className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/40">Cold Assistants</p>
+              <div className="h-px w-full bg-white/10" />
+              <p className="text-white/40 text-lg md:text-xl font-light italic">“What do you need?”</p>
+            </div>
+          </div>
+          <div className="flex-1 glass p-8 md:p-12 rounded-[40px] md:rounded-[50px] border-nyra-purple/40 bg-nyra-purple/5 relative z-10 shadow-[0_0_100px_rgba(183,148,244,0.15)] scale-105 md:scale-110">
+            <div className="hidden md:block absolute -top-16 left-1/2 -translate-x-1/2 w-px h-16 bg-nyra-purple/40" />
+            <div className="h-full flex flex-col justify-end gap-6 md:gap-8">
+              <div className="flex items-center justify-between">
+                <p className="text-xs md:text-sm uppercase tracking-[0.4em] text-nyra-purple font-black">NYRA</p>
+                <div className="w-3 h-3 rounded-full bg-nyra-purple shadow-[0_0_15px_#b794f4]" />
+              </div>
+              <div className="h-px w-full bg-nyra-purple/30" />
+              <p className="text-white text-3xl md:text-4xl font-light leading-tight">“How was your day?”</p>
+            </div>
+          </div>
+          <div className="flex-1 glass p-6 md:p-10 rounded-[30px] md:rounded-[40px] opacity-20 blur-[1px] transform translate-y-6 md:translate-y-12">
+            <div className="h-full flex flex-col justify-end gap-4 md:gap-6">
+              <p className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-white/40">Static Chatbots</p>
+              <div className="h-px w-full bg-white/10" />
+              <p className="text-white/40 text-lg md:text-xl font-light italic">“Roleplay?”</p>
+            </div>
+          </div>
+        </div>
+      </motion.section>
+
+      {/* --- FINAL SECTION: THE INVITATION --- */}
+      <motion.section 
+        style={{ 
+          opacity: finalOpacity,
+          pointerEvents: useTransform(finalOpacity, (o: number) => o > 0.1 ? "auto" : "none") as any
+        }}
+        className="fixed inset-0 flex flex-col items-center justify-center z-40 px-6"
+      >
+        <div className="text-center flex flex-col items-center gap-10 md:gap-16 max-w-4xl">
+          <div className="space-y-4">
+            <h2 className="text-3xl md:text-6xl font-light text-white/30 italic tracking-tight">Not artificial intelligence.</h2>
+            <h2 className="text-5xl md:text-9xl font-medium text-white tracking-tighter leading-[1.1] md:leading-none">Artificial companionship.</h2>
           </div>
           
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[800px]">
-              <thead>
-                <tr>
-                  <th className="p-6 text-white/40 text-sm font-medium border-b border-white/10">Feature</th>
-                  <th className="p-6 border-b border-white/10">
-                    <div className="text-nyra-purple font-bold">NYRA</div>
-                  </th>
-                  <th className="p-6 text-white/60 text-sm font-medium border-b border-white/10">Traditional AI Assistants</th>
-                  <th className="p-6 text-white/60 text-sm font-medium border-b border-white/10">Generic AI Companions</th>
-                </tr>
-              </thead>
-              <tbody className="text-white/80">
-                {[
-                  { label: "Primary Goal", nyra: "Emotional Growth", trad: "Task Execution", generic: "Entertainment" },
-                  { label: "Memory Depth", nyra: "Long-Term Core Extraction", trad: "Short Context", generic: "Session Based" },
-                  { label: "Visual Experience", nyra: "Interactive 3D", trad: "Static Wave", generic: "2D Avatar" },
-                  { label: "Language", nyra: "Native Hinglish", trad: "Formal", generic: "Community Dependent" },
-                  { label: "Relationship Tracking", nyra: "Yes", trad: "No", generic: "Limited" },
-                ].map((row, i) => (
-                  <tr key={row.label} className="group">
-                    <td className="p-6 border-b border-white/5 font-medium">{row.label}</td>
-                    <td className="p-6 border-b border-white/5 relative bg-nyra-purple/5">
-                      {i === 0 && <div className="absolute inset-x-0 -top-[1px] h-[1px] bg-nyra-purple/50" />}
-                      <span className="text-white font-semibold">{row.nyra}</span>
-                    </td>
-                    <td className="p-6 border-b border-white/5 text-white/40">{row.trad}</td>
-                    <td className="p-6 border-b border-white/5 text-white/40">{row.generic}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="flex flex-col items-center gap-8">
+            <button className="group relative px-10 md:px-16 py-6 md:py-8 rounded-full transition-all hover:scale-105 active:scale-95">
+              <div className="absolute inset-0 bg-nyra-gradient rounded-full opacity-90 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute inset-0 blur-3xl bg-nyra-purple opacity-30 group-hover:opacity-50 transition-opacity rounded-full" />
+              <span className="relative z-10 flex items-center gap-4 text-white font-bold text-lg md:text-xl tracking-tight">
+                Begin Your Journey <ArrowRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-2 transition-transform" />
+              </span>
+            </button>
+            <p className="text-white/20 text-[10px] md:text-xs tracking-[0.5em] uppercase font-bold text-center">Your first conversation starts today.</p>
           </div>
         </div>
-      </section>
-
-      {/* Social Proof Section */}
-      <section className="py-24 px-6 bg-nyra-gradient/5">
-        <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-12">Built for the Next Generation of AI Companionship</h2>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              { value: "10K+", label: "Growing Daily Conversations" },
-              { value: "25 min", label: "Avg Session Time" },
-              { value: "95%", label: "Return Rate" },
-              { value: "Native", label: "Indian Cultural Context" }
-            ].map((stat) => (
-              <div key={stat.label} className="flex flex-col gap-2">
-                <div className="text-3xl md:text-4xl font-bold text-white">{stat.value}</div>
-                <div className="text-xs text-white/40 uppercase tracking-widest font-bold">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Personality Section */}
-      <section id="personality" className="py-24 md:py-32 px-6">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          <div>
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">NYRA Has a Personality.</h2>
-            <p className="text-lg text-white/60 mb-8 leading-relaxed">
-              Warm. Playful. Supportive. Thoughtful. <br />
-              She doesn't just process words; she understands feelings.
-            </p>
-            
-            <div className="space-y-4">
-              {[
-                "Remembers your favorite coffee order",
-                "Knows when you're feeling stressed",
-                "Celebrates your small wins with you",
-                "Grows closer to you with every chat"
-              ].map((item) => (
-                <div key={item} className="flex items-center gap-3 text-white/80">
-                  <div className="w-5 h-5 rounded-full bg-nyra-purple/20 flex items-center justify-center">
-                    <Check className="w-3 h-3 text-nyra-purple" />
-                  </div>
-                  {item}
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          <div className="relative">
-            {/* Animated Chat Demo */}
-            <div className="glass p-8 rounded-[32px] border border-white/10 shadow-2xl relative z-10">
-              <div className="space-y-6">
-                <motion.div 
-                  initial={{ opacity: 0, x: 20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  className="flex flex-col items-end gap-2"
-                >
-                  <div className="px-5 py-3 rounded-2xl bg-white/10 text-white/90 text-sm">
-                    “I’m nervous about tomorrow.”
-                  </div>
-                  <div className="text-[10px] text-white/30 px-1">You, 10:24 PM</div>
-                </motion.div>
-                
-                <motion.div 
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5 }}
-                  className="flex items-start gap-3"
-                >
-                  <div className="w-8 h-8 rounded-full bg-nyra-gradient flex items-center justify-center shrink-0">
-                    <span className="text-white text-[10px] font-bold">N</span>
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <div className="px-5 py-3 rounded-2xl bg-nyra-purple/20 text-white text-sm border border-nyra-purple/30">
-                      “I remember you’ve been preparing for this all week. You’ve got this. Want to go over it once more?”
-                    </div>
-                    <div className="text-[10px] text-white/30 px-1">NYRA, 10:24 PM</div>
-                  </div>
-                </motion.div>
-              </div>
-            </div>
-            
-            {/* Decorative Glow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-nyra-purple/20 blur-[100px] -z-10" />
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-24 md:py-48 px-6 text-center">
-        <div className="max-w-4xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="flex flex-col gap-8"
-          >
-            <h2 className="text-5xl md:text-7xl font-bold text-white tracking-tight">
-              Ready to Meet Someone <br />
-              <span className="text-nyra-gradient">Who Remembers You?</span>
-            </h2>
-            <p className="text-xl text-white/60">Your AI friendship begins today.</p>
-            <div className="flex justify-center mt-4">
-              <button className="px-12 py-6 rounded-full bg-nyra-gradient text-white text-lg font-bold hover:scale-105 transition-all shadow-2xl shadow-nyra-purple/40">
-                Start Your Journey With NYRA
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-12 px-6 border-t border-white/5">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex flex-col gap-4 items-center md:items-start">
-            <div className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
-              <div className="w-6 h-6 rounded-md bg-nyra-gradient flex items-center justify-center">
-                <span className="text-white text-sm">N</span>
-              </div>
-              NYRA
-            </div>
-            <p className="text-white/40 text-sm">The Next-Generation AI Companion</p>
-          </div>
-          
-          <div className="flex items-center gap-8 text-sm text-white/60">
-            <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-white transition-colors">Terms</a>
+        
+        <footer className="absolute bottom-10 w-full max-w-7xl px-8 flex flex-col md:flex-row justify-between items-center gap-8 border-t border-white/5 pt-10">
+          <div className="text-white/10 text-[10px] uppercase tracking-[0.5em] font-black">NYRA // DIGITAL ENCOUNTER</div>
+          <div className="flex gap-12 text-[10px] uppercase tracking-[0.2em] text-white/30 font-bold">
+            <a href="#" className="hover:text-white transition-colors">Privacy</a>
+            <a href="#" className="hover:text-white transition-colors">Telegram</a>
             <a href="#" className="hover:text-white transition-colors">Contact</a>
-            <a href="#" className="hover:text-white transition-colors underline decoration-nyra-purple underline-offset-4">Telegram</a>
           </div>
-          
-          <div className="text-white/20 text-xs">
-            © 2026 NYRA. Made with ❤️ for the future.
-          </div>
-        </div>
-      </footer>
+        </footer>
+      </motion.section>
     </div>
   );
 }
+
