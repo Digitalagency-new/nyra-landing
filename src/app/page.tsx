@@ -1,8 +1,8 @@
 "use client";
 
-import { motion, useScroll, useTransform, AnimatePresence, useSpring } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence, useSpring, useMotionValueEvent } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { Globe, ArrowRight, Search, Play, Volume2, Sparkles } from "lucide-react";
+import { Globe, ArrowRight, Search, Play, Volume2, VolumeX, Sparkles } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -160,9 +160,49 @@ export default function LandingPage() {
   });
 
   const [emotion, setEmotion] = useState("neutral");
+  const [isMuted, setIsMuted] = useState(true);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Initialize Audio
+  useEffect(() => {
+    audioRef.current = new Audio("https://image2url.com/r2/default/audio/1772109737526-efd37313-80df-463f-854f-9de181b249fe.mp3");
+    if (audioRef.current) {
+      audioRef.current.preload = "auto";
+    }
+  }, []);
 
   // Smoothed transitions using spring to prevent jarring opacity flips
   const smoothProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
+
+  // Voice Audio Scroll Logic
+  useMotionValueEvent(smoothProgress, "change", (latest) => {
+    if (!audioRef.current || isMuted) return;
+
+    // Peak visibility for Section 4 is around 0.42
+    // Trigger audio between 0.38 and 0.46
+    if (latest > 0.38 && latest < 0.46) {
+      if (audioRef.current.paused) {
+        audioRef.current.currentTime = 0;
+        audioRef.current.play().catch(e => console.log("Audio play blocked", e));
+      }
+    } else {
+      if (!audioRef.current.paused) {
+        audioRef.current.pause();
+      }
+    }
+  });
+
+  // Handle Mute Toggle while in range
+  useEffect(() => {
+    if (!audioRef.current) return;
+    const latest = smoothProgress.get();
+    if (latest > 0.38 && latest < 0.46 && !isMuted) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(e => console.log("Audio play blocked", e));
+    } else {
+      audioRef.current.pause();
+    }
+  }, [isMuted, smoothProgress]);
 
   // Section Opacity Transforms - Non-overlapping ranges (8 stops total: 0 to 1 with 1/7 steps)
   // Stop indices: 0, 0.14, 0.28, 0.42, 0.57, 0.71, 0.85, 1.0
@@ -213,6 +253,24 @@ export default function LandingPage() {
 
       <CustomCursor />
       <ParticleBackground opacity={particleOpacity} />
+
+      {/* Audio Toggle */}
+      <motion.button
+        onClick={() => setIsMuted(!isMuted)}
+        className="fixed top-6 right-6 z-50 p-4 rounded-full glass border-white/10 text-white/40 hover:text-white transition-colors group"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1 }}
+      >
+        {isMuted ? (
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] uppercase tracking-widest font-bold opacity-0 group-hover:opacity-100 transition-opacity">Unmute Experience</span>
+            <VolumeX className="w-5 h-5" />
+          </div>
+        ) : (
+          <Volume2 className="w-5 h-5 animate-pulse text-nyra-purple" />
+        )}
+      </motion.button>
 
       {/* Scroll Indicator */}
       <motion.div
