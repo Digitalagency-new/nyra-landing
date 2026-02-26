@@ -12,9 +12,9 @@ function cn(...inputs: ClassValue[]) {
 
 // --- Components ---
 
-const ParticleBackground = () => {
+const ParticleBackground = ({ opacity }: { opacity: any }) => {
   return (
-    <div className="fixed inset-0 pointer-events-none z-0">
+    <motion.div style={{ opacity }} className="fixed inset-0 pointer-events-none z-0">
       {[...Array(50)].map((_, i) => (
         <motion.div
           key={i}
@@ -35,7 +35,7 @@ const ParticleBackground = () => {
           }}
         />
       ))}
-    </div>
+    </motion.div>
   );
 };
 
@@ -168,8 +168,8 @@ export default function LandingPage() {
     const voiceOpacity = useTransform(scrollYProgress, [0.48, 0.55, 0.65, 0.72], [0, 1, 1, 0]);
     const intelligenceOpacity = useTransform(scrollYProgress, [0.68, 0.75, 0.82, 0.88], [0, 1, 1, 0]);
     const counterOpacity = useTransform(scrollYProgress, [0.85, 0.88, 0.92, 0.95], [0, 1, 1, 0]);
-    const differenceOpacity = useTransform(scrollYProgress, [0.93, 0.95, 0.97, 0.98], [0, 1, 1, 0]);
-    const finalOpacity = useTransform(scrollYProgress, [0.97, 0.99, 1], [0, 1, 1]);
+    const differenceOpacity = useTransform(scrollYProgress, [0.92, 0.94, 0.96, 0.97], [0, 1, 1, 0]);
+    const finalOpacity = useTransform(scrollYProgress, [0.97, 0.98, 1], [0, 1, 1]);
   
     // Avatar Transforms
     const avatarScale = useTransform(scrollYProgress, [0, 0.3, 0.6, 0.9, 1], [1, 0.9, 1.05, 0.95, 1.2]);
@@ -177,6 +177,8 @@ export default function LandingPage() {
   
     // Scroll Progress Value
     const scrollIndicatorHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+    const scrollIndicatorOpacity = useTransform(scrollYProgress, [0, 0.05], [0, 1]);
+    const vignetteOpacity = useTransform(scrollYProgress, [0, 0.05], [0, 0.5]);
   
     useEffect(() => {
       const unsubscribe = scrollYProgress.on("change", (latest) => {
@@ -195,19 +197,28 @@ export default function LandingPage() {
         <ParticleBackground />
         
         {/* Scroll Indicator */}
-        <div className="scroll-progress-line">
+        <motion.div 
+          className="scroll-progress-line"
+          style={{ opacity: scrollIndicatorOpacity }}
+        >
           <motion.div 
             className="scroll-progress-indicator"
             style={{ height: scrollIndicatorHeight }}
           />
-        </div>
+        </motion.div>
   
-        <div className="cinematic-vignette opacity-50" />
+        <motion.div 
+          className="cinematic-vignette"
+          style={{ opacity: vignetteOpacity }}
+        />
   
         {/* Persistent Avatar */}
         <motion.div 
           className="fixed inset-0 flex items-center justify-center pointer-events-none z-20"
-          style={{ scale: avatarScale, opacity: avatarOpacity }}
+          style={{ 
+            scale: avatarScale, 
+            opacity: useTransform(scrollYProgress, [0, 0.98, 1], [1, 1, 0]) 
+          }}
         >
           <AvatarCore emotion={emotion} />
         </motion.div>
@@ -467,9 +478,9 @@ export default function LandingPage() {
           className="fixed inset-0 flex flex-col items-center justify-center z-40 px-6"
         >
           <div className="text-center flex flex-col items-center gap-12 md:gap-20 max-w-5xl">
-            <div className="space-y-6 md:space-y-8">
+            <div className="flex flex-col gap-6 md:gap-8">
               <h2 className="text-3xl md:text-6xl font-light text-white/30 italic tracking-tight">Not artificial intelligence.</h2>
-              <h2 className="text-4xl md:text-[8rem] font-medium text-white tracking-tighter leading-tight md:leading-[1.1]">Artificial companionship.</h2>
+              <h2 className="text-4xl md:text-[7rem] lg:text-[8rem] font-medium text-white tracking-tighter leading-[1.1]">Artificial companionship.</h2>
             </div>
             
             <div className="flex flex-col items-center gap-10">
