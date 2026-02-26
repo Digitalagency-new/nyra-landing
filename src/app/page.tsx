@@ -155,7 +155,8 @@ const CustomCursor = () => {
 export default function LandingPage() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
-    container: containerRef,
+    target: containerRef,
+    offset: ["start start", "end end"]
   });
 
   const [emotion, setEmotion] = useState("neutral");
@@ -224,16 +225,16 @@ export default function LandingPage() {
   const scrollIndicatorOpacity = useTransform(smoothProgress, [0, 0.05], [0, 1]);
   const vignetteOpacity = useTransform(smoothProgress, [0, 0.05], [0, 0.5]);
 
-    useEffect(() => {
-      const unsubscribe = scrollYProgress.on("change", (latest) => {
-        if (latest > 0.22 && latest < 0.36) setEmotion("happy");
-        else if (latest > 0.36 && latest < 0.44) setEmotion("thoughtful");
-        else if (latest > 0.44 && latest < 0.55) setEmotion("playful");
-        else if (latest > 0.55 && latest < 0.7) setEmotion("serious");
-        else setEmotion("neutral");
-      });
-      return () => unsubscribe();
-    }, [scrollYProgress]);
+  useEffect(() => {
+    const unsubscribe = scrollYProgress.on("change", (latest) => {
+      if (latest > 0.25 && latest < 0.3) setEmotion("happy");
+      else if (latest > 0.3 && latest < 0.35) setEmotion("thoughtful");
+      else if (latest > 0.35 && latest < 0.4) setEmotion("playful");
+      else if (latest > 0.4 && latest < 0.45) setEmotion("serious");
+      else setEmotion("neutral");
+    });
+    return () => unsubscribe();
+  }, [scrollYProgress]);
 
   return (
     <div
@@ -548,10 +549,10 @@ export default function LandingPage() {
         <motion.section 
           style={{ 
             opacity: finalOpacity,
-          pointerEvents: useTransform(finalOpacity, (o) => o > 0.1 ? "auto" : "none")
-        }}
-        className="fixed inset-0 flex flex-col items-center justify-center z-30 px-6"
-      >
+            pointerEvents: useTransform(finalOpacity, (o) => o > 0.1 ? "auto" : "none")
+          }}
+          className="fixed inset-0 flex flex-col items-center justify-center z-40 px-6"
+        >
             <div className="text-center flex flex-col items-center gap-10 md:gap-16 max-w-5xl">
               <div className="flex flex-col gap-4 md:gap-6">
                 <p className="text-2xl md:text-5xl font-light text-white/30 italic tracking-tight">Not artificial intelligence.</p>
@@ -584,11 +585,11 @@ export default function LandingPage() {
               >
                 NYRA // DIGITAL ENCOUNTER
               </a>
-                <div className="flex gap-8 md:gap-12 text-[10px] md:text-xs uppercase tracking-[0.2em] text-white/30 font-bold">
-                <a href="#" className="hover:text-white transition-colors">Privacy</a>
-                <a href="https://t.me/mynyra" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Telegram</a>
-                <a href="#" className="hover:text-white transition-colors">Contact</a>
-              </div>
+              <div className="flex gap-8 md:gap-12 text-[10px] md:text-xs uppercase tracking-[0.2em] text-white/30 font-bold">
+              <a href="#" className="hover:text-white transition-colors">Privacy</a>
+              <a href="#" className="hover:text-white transition-colors">Telegram</a>
+              <a href="#" className="hover:text-white transition-colors">Contact</a>
+            </div>
           </footer>
         </motion.section>
       </div>
