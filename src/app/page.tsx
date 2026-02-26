@@ -2,7 +2,7 @@
 
 import { motion, useScroll, useTransform, AnimatePresence, useSpring } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { Brain, Mic, Globe, User, MessageCircle, ArrowRight, Search, Play, Volume2, Sparkles } from "lucide-react";
+import { Globe, ArrowRight, Search, Play, Volume2, Sparkles } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -161,18 +161,18 @@ export default function LandingPage() {
 
     const [emotion, setEmotion] = useState("neutral");
   
-    // Section Opacity Transforms - Significantly spread out for better readability
-    const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
-    const memoryOpacity = useTransform(scrollYProgress, [0.15, 0.2, 0.25, 0.3], [0, 1, 1, 0]);
-    const emotionalOpacity = useTransform(scrollYProgress, [0.3, 0.35, 0.4, 0.45], [0, 1, 1, 0]);
-    const voiceOpacity = useTransform(scrollYProgress, [0.45, 0.5, 0.55, 0.6], [0, 1, 1, 0]);
-    const intelligenceOpacity = useTransform(scrollYProgress, [0.6, 0.65, 0.7, 0.75], [0, 1, 1, 0]);
-    const counterOpacity = useTransform(scrollYProgress, [0.75, 0.8, 0.83, 0.85], [0, 1, 1, 0]);
-    const differenceOpacity = useTransform(scrollYProgress, [0.85, 0.88, 0.92, 0.95], [0, 1, 1, 0]);
-    const finalOpacity = useTransform(scrollYProgress, [0.95, 0.98, 1], [0, 1, 1]);
+    // Section Opacity Transforms - Smoothed out and overlapped to prevent invisible spots
+    const heroOpacity = useTransform(scrollYProgress, [0, 0.12], [1, 0]);
+    const memoryOpacity = useTransform(scrollYProgress, [0.08, 0.15, 0.25, 0.32], [0, 1, 1, 0]);
+    const emotionalOpacity = useTransform(scrollYProgress, [0.28, 0.35, 0.45, 0.52], [0, 1, 1, 0]);
+    const voiceOpacity = useTransform(scrollYProgress, [0.48, 0.55, 0.65, 0.72], [0, 1, 1, 0]);
+    const intelligenceOpacity = useTransform(scrollYProgress, [0.68, 0.75, 0.82, 0.88], [0, 1, 1, 0]);
+    const counterOpacity = useTransform(scrollYProgress, [0.85, 0.88, 0.92, 0.95], [0, 1, 1, 0]);
+    const differenceOpacity = useTransform(scrollYProgress, [0.93, 0.95, 0.97, 0.98], [0, 1, 1, 0]);
+    const finalOpacity = useTransform(scrollYProgress, [0.97, 0.99, 1], [0, 1, 1]);
   
     // Avatar Transforms
-    const avatarScale = useTransform(scrollYProgress, [0, 0.3, 0.6, 0.9, 1], [1, 0.85, 1.1, 0.9, 1.4]);
+    const avatarScale = useTransform(scrollYProgress, [0, 0.3, 0.6, 0.9, 1], [1, 0.9, 1.05, 0.95, 1.2]);
     const avatarOpacity = useTransform(scrollYProgress, [0, 0.98, 1], [1, 1, 0]);
   
     // Scroll Progress Value
@@ -216,7 +216,7 @@ export default function LandingPage() {
         <motion.section 
           style={{ 
             opacity: heroOpacity,
-            pointerEvents: useTransform(heroOpacity, (o: number) => o > 0.1 ? "auto" : "none") as any 
+            pointerEvents: useTransform(heroOpacity, (o) => o > 0.1 ? "auto" : "none")
           }}
           className="fixed inset-0 flex flex-col items-center justify-center z-30 px-6"
         >
@@ -253,7 +253,7 @@ export default function LandingPage() {
         <motion.section 
           style={{ 
             opacity: memoryOpacity,
-            pointerEvents: useTransform(memoryOpacity, (o: number) => o > 0.1 ? "auto" : "none") as any
+            pointerEvents: useTransform(memoryOpacity, (o) => o > 0.1 ? "auto" : "none")
           }}
           className="fixed inset-0 flex items-center justify-center z-30 px-6"
         >
@@ -287,7 +287,7 @@ export default function LandingPage() {
         <motion.section 
           style={{ 
             opacity: emotionalOpacity,
-            pointerEvents: useTransform(emotionalOpacity, (o: number) => o > 0.1 ? "auto" : "none") as any
+            pointerEvents: useTransform(emotionalOpacity, (o) => o > 0.1 ? "auto" : "none")
           }}
           className="fixed inset-0 flex items-center justify-center z-30 px-6"
         >
@@ -327,7 +327,7 @@ export default function LandingPage() {
         <motion.section 
           style={{ 
             opacity: voiceOpacity,
-            pointerEvents: useTransform(voiceOpacity, (o: number) => o > 0.1 ? "auto" : "none") as any
+            pointerEvents: useTransform(voiceOpacity, (o) => o > 0.1 ? "auto" : "none")
           }}
           className="fixed inset-0 flex items-center justify-center z-30 px-6"
         >
@@ -363,7 +363,7 @@ export default function LandingPage() {
         <motion.section 
           style={{ 
             opacity: intelligenceOpacity,
-            pointerEvents: useTransform(intelligenceOpacity, (o: number) => o > 0.1 ? "auto" : "none") as any
+            pointerEvents: useTransform(intelligenceOpacity, (o) => o > 0.1 ? "auto" : "none")
           }}
           className="fixed inset-0 flex items-center justify-center z-30 px-6"
         >
@@ -401,7 +401,7 @@ export default function LandingPage() {
         <motion.section 
           style={{ 
             opacity: counterOpacity,
-            pointerEvents: useTransform(counterOpacity, (o: number) => o > 0.1 ? "auto" : "none") as any
+            pointerEvents: useTransform(counterOpacity, (o) => o > 0.1 ? "auto" : "none")
           }}
           className="fixed inset-0 flex items-center justify-center z-30 px-6"
         >
@@ -414,7 +414,7 @@ export default function LandingPage() {
             </div>
             <div className="text-center space-y-3">
               <h3 className="text-2xl md:text-4xl text-white font-light tracking-tight">Growing. Every day.</h3>
-              <p className="text-white/20 tracking-[0.4em] uppercase text-[10px] md:text-xs font-bold">She doesn't reset.</p>
+              <p className="text-white/20 tracking-[0.4em] uppercase text-[10px] md:text-xs font-bold">She doesn&apos;t reset.</p>
             </div>
           </div>
         </motion.section>
@@ -423,7 +423,7 @@ export default function LandingPage() {
         <motion.section 
           style={{ 
             opacity: differenceOpacity,
-            pointerEvents: useTransform(differenceOpacity, (o: number) => o > 0.1 ? "auto" : "none") as any
+            pointerEvents: useTransform(differenceOpacity, (o) => o > 0.1 ? "auto" : "none")
           }}
           className="fixed inset-0 flex items-center justify-center z-30 px-6"
         >
@@ -462,14 +462,14 @@ export default function LandingPage() {
         <motion.section 
           style={{ 
             opacity: finalOpacity,
-            pointerEvents: useTransform(finalOpacity, (o: number) => o > 0.1 ? "auto" : "none") as any
+            pointerEvents: useTransform(finalOpacity, (o) => o > 0.1 ? "auto" : "none")
           }}
           className="fixed inset-0 flex flex-col items-center justify-center z-40 px-6"
         >
           <div className="text-center flex flex-col items-center gap-12 md:gap-20 max-w-5xl">
             <div className="space-y-6 md:space-y-8">
               <h2 className="text-3xl md:text-6xl font-light text-white/30 italic tracking-tight">Not artificial intelligence.</h2>
-              <h2 className="text-4xl md:text-[8rem] font-medium text-white tracking-tighter leading-[1.2] md:leading-[0.9]">Artificial companionship.</h2>
+              <h2 className="text-4xl md:text-[8rem] font-medium text-white tracking-tighter leading-tight md:leading-[1.1]">Artificial companionship.</h2>
             </div>
             
             <div className="flex flex-col items-center gap-10">
@@ -496,4 +496,3 @@ export default function LandingPage() {
       </div>
     );
   }
-
