@@ -159,79 +159,96 @@ export default function LandingPage() {
     offset: ["start start", "end end"]
   });
 
-    const [emotion, setEmotion] = useState("neutral");
-  
-    // Section Opacity Transforms - Smoothed out and overlapped to prevent invisible spots
-    const heroOpacity = useTransform(scrollYProgress, [0, 0.12], [1, 0]);
-    const memoryOpacity = useTransform(scrollYProgress, [0.08, 0.15, 0.25, 0.32], [0, 1, 1, 0]);
-    const emotionalOpacity = useTransform(scrollYProgress, [0.28, 0.35, 0.45, 0.52], [0, 1, 1, 0]);
-    const voiceOpacity = useTransform(scrollYProgress, [0.48, 0.55, 0.65, 0.72], [0, 1, 1, 0]);
-    const intelligenceOpacity = useTransform(scrollYProgress, [0.68, 0.75, 0.82, 0.88], [0, 1, 1, 0]);
-    const counterOpacity = useTransform(scrollYProgress, [0.85, 0.88, 0.92, 0.95], [0, 1, 1, 0]);
-    const differenceOpacity = useTransform(scrollYProgress, [0.92, 0.94, 0.96, 0.97], [0, 1, 1, 0]);
-    const finalOpacity = useTransform(scrollYProgress, [0.97, 0.98, 1], [0, 1, 1]);
-  
-    // Avatar Transforms
-    const avatarScale = useTransform(scrollYProgress, [0, 0.3, 0.6, 0.9, 1], [1, 0.9, 1.05, 0.95, 1.2]);
-    const avatarOpacity = useTransform(scrollYProgress, [0, 0.08, 0.98, 1], [0, 1, 1, 0]);
-    const particleOpacity = useTransform(scrollYProgress, [0, 0.1], [0, 1]);
-  
-    // Scroll Progress Value
-    const scrollIndicatorHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
-    const scrollIndicatorOpacity = useTransform(scrollYProgress, [0, 0.05], [0, 1]);
-    const vignetteOpacity = useTransform(scrollYProgress, [0, 0.05], [0, 0.5]);
-  
-    useEffect(() => {
-      const unsubscribe = scrollYProgress.on("change", (latest) => {
-        if (latest > 0.3 && latest < 0.34) setEmotion("happy");
-        else if (latest > 0.34 && latest < 0.38) setEmotion("thoughtful");
-        else if (latest > 0.38 && latest < 0.42) setEmotion("playful");
-        else if (latest > 0.42 && latest < 0.45) setEmotion("serious");
-        else setEmotion("neutral");
-      });
-      return () => unsubscribe();
-    }, [scrollYProgress]);
-  
-    return (
-      <div ref={containerRef} className="relative min-h-[1000vh] bg-[#0B0B12] selection:bg-nyra-purple/30">
-        <CustomCursor />
-        <ParticleBackground opacity={particleOpacity} />
-        
-        {/* Scroll Indicator */}
-        <motion.div 
-          className="scroll-progress-line"
-          style={{ opacity: scrollIndicatorOpacity }}
-        >
-          <motion.div 
-            className="scroll-progress-indicator"
-            style={{ height: scrollIndicatorHeight }}
-          />
-        </motion.div>
-  
-        <motion.div 
-          className="cinematic-vignette"
-          style={{ opacity: vignetteOpacity }}
+  const [emotion, setEmotion] = useState("neutral");
+
+  // Smoothed transitions using spring to prevent jarring opacity flips
+  const smoothProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
+
+  // Section Opacity Transforms - Non-overlapping ranges (8 stops total: 0 to 1 with 1/7 steps)
+  // Stop indices: 0, 0.14, 0.28, 0.42, 0.57, 0.71, 0.85, 1.0
+  const heroOpacity = useTransform(smoothProgress, [0, 0.08], [1, 0]);
+  const memoryOpacity = useTransform(smoothProgress, [0.08, 0.14, 0.22], [0, 1, 0]);
+  const emotionalOpacity = useTransform(smoothProgress, [0.22, 0.28, 0.36], [0, 1, 0]);
+  const voiceOpacity = useTransform(smoothProgress, [0.36, 0.42, 0.50], [0, 1, 0]);
+  const intelligenceOpacity = useTransform(smoothProgress, [0.50, 0.57, 0.65], [0, 1, 0]);
+  const counterOpacity = useTransform(smoothProgress, [0.65, 0.71, 0.79], [0, 1, 0]);
+  const differenceOpacity = useTransform(smoothProgress, [0.79, 0.85, 0.93], [0, 1, 0]);
+  const finalOpacity = useTransform(smoothProgress, [0.93, 1], [0, 1]);
+
+  // Avatar Transforms
+  const avatarScale = useTransform(smoothProgress, [0, 0.3, 0.6, 0.9, 1], [1, 0.9, 1.05, 0.95, 1.2]);
+  const avatarOpacity = useTransform(smoothProgress, [0.05, 0.14, 0.93, 1], [0, 1, 1, 0]);
+  const particleOpacity = useTransform(smoothProgress, [0.05, 0.14], [0, 1]);
+
+  // Scroll Progress Value
+  const scrollIndicatorHeight = useTransform(smoothProgress, [0, 1], ["0%", "100%"]);
+  const scrollIndicatorOpacity = useTransform(smoothProgress, [0, 0.05], [0, 1]);
+  const vignetteOpacity = useTransform(smoothProgress, [0, 0.05], [0, 0.5]);
+
+  useEffect(() => {
+    const unsubscribe = scrollYProgress.on("change", (latest) => {
+      if (latest > 0.25 && latest < 0.3) setEmotion("happy");
+      else if (latest > 0.3 && latest < 0.35) setEmotion("thoughtful");
+      else if (latest > 0.35 && latest < 0.4) setEmotion("playful");
+      else if (latest > 0.4 && latest < 0.45) setEmotion("serious");
+      else setEmotion("neutral");
+    });
+    return () => unsubscribe();
+  }, [scrollYProgress]);
+
+  return (
+    <div
+      ref={containerRef}
+      className="h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth bg-[#0B0B12] selection:bg-nyra-purple/30"
+    >
+      {/* Snap Points (Anchors) */}
+      <div className="snap-start h-screen w-full" id="section-1" />
+      <div className="snap-start h-screen w-full" id="section-2" />
+      <div className="snap-start h-screen w-full" id="section-3" />
+      <div className="snap-start h-screen w-full" id="section-4" />
+      <div className="snap-start h-screen w-full" id="section-5" />
+      <div className="snap-start h-screen w-full" id="section-6" />
+      <div className="snap-start h-screen w-full" id="section-7" />
+      <div className="snap-start h-screen w-full" id="section-8" />
+
+      <CustomCursor />
+      <ParticleBackground opacity={particleOpacity} />
+
+      {/* Scroll Indicator */}
+      <motion.div
+        className="scroll-progress-line"
+        style={{ opacity: scrollIndicatorOpacity }}
+      >
+        <motion.div
+          className="scroll-progress-indicator"
+          style={{ height: scrollIndicatorHeight }}
         />
-  
-        {/* Persistent Avatar */}
-        <motion.div 
-          className="fixed inset-0 flex items-center justify-center pointer-events-none z-20"
-          style={{ 
-            scale: avatarScale, 
-            opacity: avatarOpacity 
-          }}
-        >
-          <AvatarCore emotion={emotion} />
-        </motion.div>
-  
-        {/* --- SECTION 1: THE ARRIVAL --- */}
-        <motion.section 
-          style={{ 
-            opacity: heroOpacity,
-            pointerEvents: useTransform(heroOpacity, (o) => o > 0.1 ? "auto" : "none")
-          }}
-          className="fixed inset-0 flex flex-col items-center justify-center z-30 px-6"
-        >
+      </motion.div>
+
+      <motion.div
+        className="cinematic-vignette"
+        style={{ opacity: vignetteOpacity }}
+      />
+
+      {/* Persistent Avatar */}
+      <motion.div
+        className="fixed inset-0 flex items-center justify-center pointer-events-none z-20"
+        style={{
+          scale: avatarScale,
+          opacity: avatarOpacity
+        }}
+      >
+        <AvatarCore emotion={emotion} />
+      </motion.div>
+
+      {/* --- SECTION 1: THE ARRIVAL --- */}
+      <motion.section
+        style={{
+          opacity: heroOpacity,
+          pointerEvents: useTransform(heroOpacity, (o) => o > 0.1 ? "auto" : "none")
+        }}
+        className="fixed inset-0 flex flex-col items-center justify-center z-30 px-6"
+      >
           <div className="text-center">
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
