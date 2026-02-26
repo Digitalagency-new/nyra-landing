@@ -501,21 +501,33 @@ export default function LandingPage() {
                 <h2 className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-medium text-white tracking-tighter leading-[1.1] text-balance">Artificial companionship.</h2>
               </div>
             
-            <div className="flex flex-col items-center gap-10">
-              <button className="group relative px-12 md:px-20 py-6 md:py-10 rounded-full transition-all hover:scale-105 active:scale-95">
-                <div className="absolute inset-0 bg-nyra-gradient rounded-full opacity-90 group-hover:opacity-100 transition-opacity" />
-                <div className="absolute inset-0 blur-3xl bg-nyra-purple opacity-30 group-hover:opacity-50 transition-opacity rounded-full" />
-                <span className="relative z-10 flex items-center gap-6 text-white font-black text-xl md:text-2xl tracking-tight">
-                  Begin Your Journey <ArrowRight className="w-6 h-6 md:w-8 md:h-8 group-hover:translate-x-3 transition-transform" />
-                </span>
-              </button>
-              <p className="text-white/20 text-[10px] md:text-sm tracking-[0.5em] uppercase font-bold text-center">Your first conversation starts today.</p>
-            </div>
+              <div className="flex flex-col items-center gap-10">
+                <a 
+                  href="https://mynyra.netlify.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative px-12 md:px-20 py-6 md:py-10 rounded-full transition-all hover:scale-105 active:scale-95 block"
+                >
+                  <div className="absolute inset-0 bg-nyra-gradient rounded-full opacity-90 group-hover:opacity-100 transition-opacity" />
+                  <div className="absolute inset-0 blur-3xl bg-nyra-purple opacity-30 group-hover:opacity-50 transition-opacity rounded-full" />
+                  <span className="relative z-10 flex items-center gap-6 text-white font-black text-xl md:text-2xl tracking-tight">
+                    Begin Your Journey <ArrowRight className="w-6 h-6 md:w-8 md:h-8 group-hover:translate-x-3 transition-transform" />
+                  </span>
+                </a>
+                <p className="text-white/20 text-[10px] md:text-sm tracking-[0.5em] uppercase font-bold text-center">Your first conversation starts today.</p>
+              </div>
           </div>
           
-          <footer className="absolute bottom-8 w-full max-w-7xl px-8 flex flex-col md:flex-row justify-between items-center gap-10 border-t border-white/5 pt-12">
-            <div className="text-white/10 text-[10px] md:text-xs uppercase tracking-[0.5em] font-black">NYRA // DIGITAL ENCOUNTER</div>
-            <div className="flex gap-8 md:gap-12 text-[10px] md:text-xs uppercase tracking-[0.2em] text-white/30 font-bold">
+            <footer className="absolute bottom-8 w-full max-w-7xl px-8 flex flex-col md:flex-row justify-between items-center gap-10 border-t border-white/5 pt-12">
+              <a 
+                href="https://mynyra.netlify.app/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-white/10 text-[10px] md:text-xs uppercase tracking-[0.5em] font-black hover:text-white/30 transition-colors"
+              >
+                NYRA // DIGITAL ENCOUNTER
+              </a>
+              <div className="flex gap-8 md:gap-12 text-[10px] md:text-xs uppercase tracking-[0.2em] text-white/30 font-bold">
               <a href="#" className="hover:text-white transition-colors">Privacy</a>
               <a href="#" className="hover:text-white transition-colors">Telegram</a>
               <a href="#" className="hover:text-white transition-colors">Contact</a>
